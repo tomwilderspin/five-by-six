@@ -25,12 +25,13 @@ export const WordGrid: FC<WordGridProps> = ({
   guesses,
 }) => {
   const rows = [];
+  console.log('guesses', guesses);
   for (let i = 0; i < maxRows; i++) {
     const guess = guesses[i] || (i === currentAttempt ? currentWord : "");
     const cells = [];
     for (let j = 0; j < wordLength; j++) {
       let bgColor = "bg-gray-900";
-      const delay = j * 2 * 0.5; // Staggered delay for each tile
+      const delay = (j * 2) * 0.5; // Staggered delay for each tile
       let content = <div>{guess[j] || ""}</div>;
 
       if (guess[j]) {

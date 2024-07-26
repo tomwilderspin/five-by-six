@@ -12,12 +12,17 @@ const VERSION_ID = "v0.0.1-beta3";
 const App: FC = () => {
   const params = new URLSearchParams(window.location.search || "");
   let answer = "";
+  let gameId = "";
   try {
     const answerParam = params.get(ANSWER_KEY) ?? "";
-    const [answerVal] = answerParam ? decode(answerParam).split(":") : [];
+    const [answerVal, gameQueryId] = answerParam ? decode(answerParam).split(":") : [];
     answer = answerVal;
+    gameId = gameQueryId;
     if (answer && answer.replace(/[^a-z]/g, "").length !== 5) {
       throw new Error("malformed query payload");
+    }
+    if (answer && !gameId) {
+      throw new Error("missing game ID!");
     }
   } catch (err) {
     enqueueSnackbar(
@@ -27,7 +32,7 @@ const App: FC = () => {
     console.error("malformed answer", err);
   }
   const content = answer ? (
-    <GuessGameScreen answer={answer} />
+    <GuessGameScreen answer={answer} gameId={gameId} />
   ) : (
     <NewAnswerScreen />
   );

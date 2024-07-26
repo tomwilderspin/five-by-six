@@ -4,20 +4,39 @@ import { WordGrid } from "./WordGrid";
 import { wordList } from "../lib/wordlist";
 import { enqueueSnackbar } from "notistack";
 import { useConfetti } from "../hooks/confetti";
+import { useGameData } from "../context/gameData";
 
 const WORD_LENGTH = 5;
 const MAX_ATTEMPTS = 6;
 
-interface GuessGameScreenProps {
-  answer: string;
+enum GameStatus {
+  Playing = "playing",
+  Won = "won",
+  Lost = "lost",
 }
 
-const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer }) => {
-  const [currentAttempt, setCurrentAttempt] = useState(0);
+interface GuessGameScreenProps {
+  answer: string;
+  gameId: string;
+}
+
+const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer, gameId }) => {
+  const { gameData, setGameData } = useGameData();
   const [currentWord, setCurrentWord] = useState("");
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [status, setStatus] = useState<"playing" | "won" | "lost">("playing");
+  const [status, setStatus] = useState<GameStatus>(GameStatus.Playing);
   const { windowConfetti } = useConfetti();
+  const { games } = gameData;
+  let guesses: string[] = [];
+  let currentAttempt: number = 0;
+  if (games && games[gameId]) {
+    guesses = games[gameId].guesses || [];
+    currentAttempt = guesses.length;
+  }
+  const setGuesses = (updatedGuesses: string[]) => {
+    setGameData({
+      games: { ...games, [gameId]: { guesses: updatedGuesses } },
+    });
+  };
 
   const handleNewGame = () => {
     const { host, protocol } = window.location || {};
@@ -32,12 +51,11 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer }) => {
       }
       if (currentWord.length === WORD_LENGTH) {
         setGuesses([...guesses, currentWord]);
-        setCurrentAttempt(currentAttempt + 1);
 
         if (currentWord === answer) {
-          setStatus("won");
+          setStatus(GameStatus.Won);
         } else if (currentAttempt + 1 === MAX_ATTEMPTS) {
-          setStatus("lost");
+          setStatus(GameStatus.Lost);
         }
         setCurrentWord("");
       }
@@ -51,6 +69,12 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => handleKeyPress(event.key);
     window.addEventListener("keydown", handleKeyDown);
+    if (guesses.length && guesses[guesses.length - 1] === answer) {
+      setStatus(GameStatus.Won);
+    }
+    if (guesses.length === 6 && guesses[guesses.length - 1] !== answer ) {
+      setStatus(GameStatus.Lost);
+    }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentWord, currentAttempt, status]);
 
@@ -67,10 +91,10 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer }) => {
           currentWord={currentWord}
         />
       </div>
-      {status !== "playing" && (
+      {status !== GameStatus.Playing && (
         <div className="flex flex-col items-center">
           <div className="mt-8 text-2xl text-center">
-            {status === "won"
+            {status === GameStatus.Won
               ? `Congratulations! You got it right, "${answer.toUpperCase()}"`
               : `Game over! The word was "${answer.toUpperCase()}". Try again next time!`}
           </div>
