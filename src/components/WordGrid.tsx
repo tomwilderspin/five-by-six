@@ -1,4 +1,11 @@
 import { FC } from "react";
+import { CharGuess, checkGuessChar } from "../lib/game";
+
+enum GuessColour {
+  Miss = "bg-gray-500",
+  Hit = "bg-green-500",
+  Near = "bg-yellow-500",
+}
 
 interface WordGridProps {
   maxRows: number;
@@ -17,23 +24,28 @@ export const WordGrid: FC<WordGridProps> = ({
   currentWord,
   guesses,
 }) => {
-  console.log('current word', currentWord);
   const rows = [];
   for (let i = 0; i < maxRows; i++) {
     const guess = guesses[i] || (i === currentAttempt ? currentWord : "");
     const cells = [];
     for (let j = 0; j < wordLength; j++) {
       let bgColor = "bg-gray-900";
-      const delay = j * 0.5; // Staggered delay for each tile
-      let content = (<div>{guess[j] || ""}</div>);
+      const delay = j * 2 * 0.5; // Staggered delay for each tile
+      let content = <div>{guess[j] || ""}</div>;
+
       if (guess[j]) {
         if (i < currentAttempt) {
-          if (guess[j] === answer[j]) {
-            bgColor = "bg-green-500";
-          } else if (answer.includes(guess[j])) {
-            bgColor = "bg-yellow-500";
-          } else {
-            bgColor = "bg-gray-500";
+          const guessChar = checkGuessChar(j, guess, answer);
+          switch (guessChar) {
+            case CharGuess.Hit:
+              bgColor = GuessColour.Hit;
+              break;
+            case CharGuess.Miss:
+              bgColor = GuessColour.Miss;
+              break;
+            case CharGuess.Near:
+              bgColor = GuessColour.Near;
+              break;
           }
           content = (
             <div

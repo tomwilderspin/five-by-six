@@ -7,18 +7,24 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest --config ./vitest.config.ts"
   },
   "dependencies": {
     "base-64": "^1.0.0",
     "framer-motion": "^11.3.8",
+    "notistack": "^3.0.1",
     "react": "^18.3.1",
+    "react-confetti": "^6.1.0",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.25.1"
+    "react-router-dom": "^6.25.1",
+    "react-use": "^17.5.1"
   },
   "devDependencies": {
     "@types/base-64": "^1.0.2",
     "@types/react": "^18.3.3",
+    "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
@@ -30,6 +36,7 @@
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.2.2",
-    "vite": "^5.3.4"
+    "vite": "^5.3.4",
+    "vitest": "^2.0.3"
   }
 }

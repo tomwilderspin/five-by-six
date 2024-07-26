@@ -3,8 +3,11 @@ import "./App.css";
 import GuessGameScreen from "./components/GuessGameScreen";
 import { decode } from "base-64";
 import NewAnswerScreen from "./components/NewAnswerScreen";
+import { enqueueSnackbar } from "notistack";
 
 const ANSWER_KEY = "ans";
+// TODO: generate this on build / deploy.
+const VERSION_ID = "v0.0.1-beta3";
 
 const App: FC = () => {
   const params = new URLSearchParams(window.location.search || "");
@@ -13,14 +16,26 @@ const App: FC = () => {
     const answerParam = params.get(ANSWER_KEY) ?? "";
     const [answerVal] = answerParam ? decode(answerParam).split(":") : [];
     answer = answerVal;
+    if (answer && answer.replace(/[^a-z]/g, "").length !== 5) {
+      throw new Error("malformed query payload");
+    }
   } catch (err) {
-    console.error("failed to fetch answer val", err);
+    enqueueSnackbar(
+      "Whoops! there's an error in the game link, have you pasted it in correctly?",
+      { variant: "error", autoHideDuration: 3000 }
+    );
+    console.error("malformed answer", err);
   }
-  const content = answer ? <GuessGameScreen answer={answer} /> : <NewAnswerScreen />;
+  const content = answer ? (
+    <GuessGameScreen answer={answer} />
+  ) : (
+    <NewAnswerScreen />
+  );
   return (
-    <main className=" mx-auto h-screen flex flex-col items-center justify-center bg-gray-900 text-white max-w-[500px]">
+    <main className="my-3 mx-auto h-screen flex flex-col items-center justify-center bg-gray-900 text-white max-w-[500px]">
       <h1 className="text-5xl font-bold mb-8">FIVE BY SIX</h1>
-      {content}
+      <div className="px-2 w-full">{content}</div>
+      <small className="mt-1 w-full text-center">version {VERSION_ID}</small>
     </main>
   );
 };

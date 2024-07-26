@@ -9,7 +9,7 @@ const AnswerInput: FC<AnswerInputProps> = ({ handleSubmit }) => {
 
   const handleInputChange = (val: string) => {
     if (val.length < 6) {
-      setValue(val);
+      setValue(val.replace(/[^a-zA-Z]/g, "").toLowerCase());
     }
   };
 
@@ -20,8 +20,9 @@ const AnswerInput: FC<AnswerInputProps> = ({ handleSubmit }) => {
   };
 
   return (
-    <div className="mb-4 mx-auto w-full">
+    <div className="mb-4 flex justify-center">
       <form
+        className="w-full max-w-[300px]"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -43,7 +44,9 @@ const AnswerInput: FC<AnswerInputProps> = ({ handleSubmit }) => {
           max={5}
           min={1}
         />
-        <button type="submit" className=" mt-3 p-3 bg-gray-700 text-white rounded flex grow items-center justify-center text-lg font-semibold">Create link</button>
+        <div className="w-full flex justify-center mt-3">
+          <button type="submit" className=" py-3 px-4 bg-gray-700 text-white rounded flex items-center justify-center text-lg font-semibold">Create link</button>
+        </div>
       </form>
     </div>
   );
