@@ -5,15 +5,8 @@ import { wordList } from "../lib/wordlist";
 import { enqueueSnackbar } from "notistack";
 import { useConfetti } from "../hooks/confetti";
 import { useGameData } from "../context/gameData";
-
-const WORD_LENGTH = 5;
-const MAX_ATTEMPTS = 6;
-
-enum GameStatus {
-  Playing = "playing",
-  Won = "won",
-  Lost = "lost",
-}
+import { CharGuess, GameStatus, MAX_ATTEMPTS, WORD_LENGTH } from "../lib/gameConstants";
+import { checkGuessChar } from "../lib/game";
 
 interface GuessGameScreenProps {
   answer: string;
@@ -26,6 +19,7 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer, gameId }) => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.Playing);
   const { windowConfetti } = useConfetti();
   const { games } = gameData;
+  const lettersToGuessMap = new Map<string, CharGuess>();
   let guesses: string[] = [];
   let currentAttempt: number = 0;
   if (games && games[gameId]) {
@@ -66,6 +60,15 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer, gameId }) => {
     }
   };
 
+  const onCheckGuessLetter = (charIndx: number, guess: string) => {
+    const guessLetter = guess[charIndx];
+    const charGuess = checkGuessChar(charIndx, guess, answer);
+    if (guessLetter) {
+      lettersToGuessMap.set(guessLetter, charGuess);
+    }
+    return charGuess;
+  }
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => handleKeyPress(event.key);
     window.addEventListener("keydown", handleKeyDown);
@@ -83,10 +86,10 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer, gameId }) => {
       {status === "won" && windowConfetti}
       <div className="grid gap-2">
         <WordGrid
+          onCheckGuessLetter={onCheckGuessLetter}
           maxRows={MAX_ATTEMPTS}
           wordLength={WORD_LENGTH}
           guesses={guesses}
-          answer={answer}
           currentAttempt={currentAttempt}
           currentWord={currentWord}
         />
@@ -106,7 +109,7 @@ const GuessGameScreen: FC<GuessGameScreenProps> = ({ answer, gameId }) => {
           </button>
         </div>
       )}
-      <Keyboard onKeyPress={handleKeyPress} />
+      <Keyboard onKeyPress={handleKeyPress} letterGuessMap={lettersToGuessMap} />
     </div>
   );
 };

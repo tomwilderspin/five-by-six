@@ -1,8 +1,5 @@
-export enum CharGuess {
-  Hit = "hit",
-  Near = "near",
-  Miss = "miss",
-}
+import { CharGuess, GuessColour } from "./gameConstants";
+
 
 const isHitChar = (guessChar: string, answerChar: string) =>
   guessChar === answerChar;
@@ -68,3 +65,14 @@ export const checkGuessChar = (
   //check for near (right char, wrong place)
   return checkForNearChars({ charIndx, guess, answer });
 };
+
+export const charGuessToColour = (charGuess: CharGuess) => {
+  switch (charGuess) {
+    case CharGuess.Hit:
+      return GuessColour.Hit;
+    case CharGuess.Miss:
+      return GuessColour.Miss;
+    case CharGuess.Near:
+      return GuessColour.Near;
+  }
+}
