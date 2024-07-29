@@ -7,7 +7,7 @@ import { enqueueSnackbar } from "notistack";
 
 const ANSWER_KEY = "ans";
 // TODO: generate this on build / deploy.
-const VERSION_ID = "v0.0.2";
+const VERSION_ID = "v0.2.1";
 
 const App: FC = () => {
   const params = new URLSearchParams(window.location.search || "");
